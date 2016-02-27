@@ -4,6 +4,8 @@ var chunks = [];
 
 var constraints = {video: true};
 
+var COUNTER = 0;
+
 // Put event listeners into place
 window.addEventListener("DOMContentLoaded", function() {
     // Grab elements, create settings, etc.
@@ -33,6 +35,17 @@ window.addEventListener("DOMContentLoaded", function() {
                 console.log("recorder stopped");
                 replayer.style.display = "block";
                 document.getElementById("stillCanvas").style.display = "none";
+            }
+            
+            document.getElementById("save").onclick = function() {
+                COUNTER = COUNTER + 1;
+                var uri = canvas.toDataURL();
+                console.log(uri);
+                localStorage.setItem(COUNTER, uri.toString());
+            }
+            
+            document.getElementById("view").onclick = function() {
+                console.log(localStorage.getItem(COUNTER));
             }
 
             mediaRecorder.ondataavailable = function(e) {
