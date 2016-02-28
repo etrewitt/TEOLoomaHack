@@ -1,6 +1,3 @@
-//var RecordRTC = require('recordrtc');
-//var recorder = RecordRTC(mediaStream, { type: 'audio'});
-
 console.log("test");
 
 var chunks = [];
@@ -11,11 +8,14 @@ var COUNTER = 0;
 
 // Put event listeners into place
 window.addEventListener("DOMContentLoaded", function() {
+    if (!localStorage.getItem("count")) {
+        localStorage.setItem("count", "0");
+    }
     // Grab elements, create settings, etc.
-    var canvas = document.getElementById("stillCanvas"),
-        context = canvas.getContext("2d"),
+    var imgCanvas = document.getElementById("stillCanvas"),
+        context = imgCanvas.getContext("2d"),
         video = document.getElementById("video"),
-        replayer = document.getElementById('videoCanvas');
+        vidCanvas = document.getElementById('videoCanvas');
         videoObj = { "video": true },
         errBack = function(error) {
             console.log("Video capture error: ", error.code); 
@@ -26,36 +26,72 @@ window.addEventListener("DOMContentLoaded", function() {
             video.play();
             
             console.log("stream", stream);
-//            var mediaRecorder = new MediaRecorder(stream);
-            var recordRTC = RecordRTC(stream, {
-                type: 'video' // audio or video or gif or canvas
-            });
+            var mediaRecorder = new MediaRecorder(stream);
+//            var recordRTC = RecordRTC(stream, {
+//                type: 'video' // audio or video or gif or canvas
+//            });
 
             document.getElementById("start").onclick = function() {
                 chunks = [];
-//                mediaRecorder.start();
-                recordRTC.startRecording();
+                mediaRecorder.start();
+//                recordRTC.startRecording();
                 console.log("recorder started");
             }
 
             document.getElementById("stop").onclick = function() {
-//                mediaRecorder.stop();
-                recordRTC.stopRecording();
+                mediaRecorder.stop();
+//                recordRTC.stopRecording();
                 console.log("recorder stopped");
-                replayer.style.display = "block";
+                vidCanvas.style.display = "block";
                 document.getElementById("stillCanvas").style.display = "none";
+                document.getElementById("save_img").style.display = "none";
+                document.getElementById("save_vid").style.display = "block";
             }
             
-            document.getElementById("save").onclick = function() {
+            document.getElementById("save_img").onclick = function() {
                 COUNTER = COUNTER + 1;
-//                var uri = canvas.toDataURL();
-                var uri = recordRTC.toURL();
-                console.log(uri);
-                localStorage.setItem(COUNTER, uri.toString());
+//                var uri = imgCanvas.toDataURL();
+//                var uri = recordRTC.toURL();
+//                console.log(uri);
+//                localStorage.setItem(COUNTER, uri.toString());
+                var blob;
+                imgCanvas.toBlob(function(blob) {
+                    var newImg = document.createElement("img"),
+                    url = URL.createObjectURL(blob);
+
+                    newImg.onload = function() {
+                        // no longer need to read the blob so it's revoked
+                        URL.revokeObjectURL(url);
+                    };
+
+                    newImg.src = url;
+                    document.body.appendChild(newImg);
+                }, "image/png");
+                console.log(blob);
+                localStorage.setItem(COUNTER, blob.toString());
+            }
+            document.getElementById("save_vid").onclick = function() {
+                COUNTER = COUNTER + 1;
+//                var uri = vidCanvas.toDataURL();
+//                var uri = recordRTC.toURL();
+//                console.log(uri);
+//                localStorage.setItem(COUNTER, uri.toString());
+                var blob = vidCanvas.toBlob();
+                console.log(blob);
+                localStorage.setItem(COUNTER, blob.toString());
             }
             
             document.getElementById("view").onclick = function() {
-                console.log(localStorage.getItem(COUNTER));
+                var count = localStorage.getItem("count");
+                
+                var byteCharacters = atob(localStorage.getItem("clip #" + count));
+                var byteNumbers = new Array(byteCharacters.length);
+                for (var i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                var blob = new Blob([byteArray], { 'type' : "video/ogg; codecs=opus" });
+                vidCanvas.src = window.URL.createObjectURL(blob);
             }
 
             mediaRecorder.ondataavailable = function(e) {
@@ -65,8 +101,20 @@ window.addEventListener("DOMContentLoaded", function() {
 
             mediaRecorder.onstop = function(e) {
                 console.log('onstop fired');
-                var blob = new Blob(chunks, { 'type' : 'video/ogv; codecs=opus' });
-                replayer.src = window.URL.createObjectURL(blob);
+                var blob = new Blob(chunks, { 'type' : 'video/ogg; codecs=opus' });
+                vidCanvas.src = window.URL.createObjectURL(blob);
+//                localStorage.setItem("clip #" + COUNTER, blob.toString())
+                
+                var reader = new window.FileReader();
+                reader.readAsDataURL(blob); 
+                reader.onloadend = function() {
+                    base64data = reader.result;                
+                    console.log(base64data );
+                    var count = parseInt(localStorage.getItem("count"), 10);
+                    localStorage.setItem("count", (count+1).toString());
+                    localStorage.setItem("clip #" + count.toString(), base64data.toString())
+                }
+                
             };
 
             mediaRecorder.onwarning = function(e) {
@@ -94,6 +142,8 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("snap").addEventListener("click", function() {
         context.drawImage(video, 0, 0, 640, 480);
         document.getElementById("stillCanvas").style.display = "block";
+        document.getElementById("save_img").style.display = "block";
         document.getElementById("videoCanvas").style.display = "none";
+        document.getElementById("save_vid").style.display = "none";
     });
 }, false);

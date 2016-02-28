@@ -4,11 +4,12 @@
 <head>
 	<title> Webcam Control </title>
 	<meta charset="UTF-8">
-
-	<script src = "https://raw.githubusercontent.com/etrewitt/TEOLoomaHack/testing-video-src/WebcamLooma.js" ></script>
-	<script src = "https://webrtcexperiment-webrtc.netdna-ssl.com/RecordRTC.js"></script>
-
-    <link rel="stylesheet" type="text/css" href="https://raw.githubusercontent.com/etrewitt/TEOLoomaHack/testing-video-src/WebLoomaStyle.css">
+<!--
+	<script type="text/js" src = "https://raw.githubusercontent.com/etrewitt/TEOLoomaHack/testing-video-src/WebcamLooma.js" ></script>
+	<script type="text/js" src = "https://webrtcexperiment-webrtc.netdna-ssl.com/RecordRTC.js"></script>
+-->
+    <script src = "WebcamLooma.js" ></script>
+    <link rel="stylesheet" type="text/css" href="WebLoomaStyle.css">
 </head> 
 
 <body>
@@ -17,12 +18,15 @@
 <button id="snap">Snap Photo</button>
 <button id="start">Begin recording</button>
 <button id="stop">End recording</button>
-<button id="save">Save</button>
+<button id="save_img">Save</button>
+<button id="save_vid" style="display: none;">Save</button>
 <button id="view">View</button>
 
 <canvas id="stillCanvas" width="640" height="500" style="border:1px solid #c3c3c3;">
 Your browser does not support the HTML5 canvas tag.
 </canvas> 
 <video id="videoCanvas" width="640" height="500" autoplay style="border:1px solid #c3c3c3; display:none;">
+</video>
 
 </body> 
+</html>
