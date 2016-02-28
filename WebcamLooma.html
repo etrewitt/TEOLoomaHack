@@ -7,16 +7,37 @@
 
 	<script  src = "WebcamLooma.js" ></script>
     <link rel="stylesheet" type="text/css" href="WebLoomaStyle.css">
-
 </head> 
 
 <body>
 
 <video id="video" width="640" height="480" autoplay></video>
-<button id="snap">Snap Photo</button>
 
-<canvas id="myCanvas" width="640" height="500" style="border:1px solid #c3c3c3;">
+<button id="snap">Snap Photo</button>
+<button id="start">Begin recording</button>
+<button id="stop">End recording</button>
+<button id="save">Save</button>
+<button id="view">View</button>
+<button onclick = "playVid()" type = "button" > Play </button>
+
+<canvas id="stillCanvas" width="640" height="480" style="border:1px solid #c3c3c3;">
 Your browser does not support the HTML5 canvas tag.
 </canvas> 
 
+<video id="videoCanvas" width="640" height="480" autoplay style="border:1px solid #c3c3c3; display: none;">
+<source id= "ogg_src" src = "*.ogg" type = "video/ogg">
+</video>
+
+<!-- input type="file" accept="video/*;capture=camcorder">
+<input type="file" accept="audio/*;capture=microphone">   --> 
+
+<device type="media" onchange="update(this.data)"></device>
+
+<script>
+  function update(stream) {
+    document.querySelector('video').src = stream.url;
+  }
+</script>
+
 </body> 
+</html> 
