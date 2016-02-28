@@ -1,17 +1,47 @@
 body {
 
-color: 4d0000;
-text-color: #DEB887;
-    
-text-shadow: 2px 2px #000000;
+font-family: Georgia;
+font-size: 20px;
+
 border: 3px solid black;
-background-image: ;
-background-attachment: scroll;
-padding: auto;
-background-position: center;
+background-color: #383838  ;
+/*order top right bottom left  */
+padding: 10px 10px 30px 90px;
 margin: 25px;
 
 }
 
+p{
+font-family: Georgia;
+color: white;
+font-size: 30px;
+text-align: center;
 
+}
+.button {
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 15px;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 4px 2px;
+    
+}
 
+.saveButton {
+    background-color: #f44336;
+    border: none;
+    border-radius: 15px;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 4px 2px;
+    
+}

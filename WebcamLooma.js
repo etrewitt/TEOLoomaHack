@@ -6,78 +6,109 @@ var constraints = {video: true};
 
 var COUNTER = 0;
 
-
 // Put event listeners into place
 window.addEventListener("DOMContentLoaded", function() {
-   
-   
+    if (!localStorage.getItem("count")) {
+        localStorage.setItem("count", "0");
+    }
     // Grab elements, create settings, etc.
-    var canvas = document.getElementById("stillCanvas"),
-        context = canvas.getContext("2d"),
+    var imgCanvas = document.getElementById("stillCanvas"),
+        context = imgCanvas.getContext("2d"),
         video = document.getElementById("video"),
-        replayer = document.getElementById('videoCanvas');
-     
-        videoObj = { "video": true, "audio": true },
-       
+        vidCanvas = document.getElementById('videoCanvas');
+        videoObj = { "video": true, "audio" : true },
+        
         errBack = function(error) {
             console.log("Video capture error: ", error.code); 
         }
         onSuccess = function(stream){
+            console.log("onSuccess");
             video.src = window.URL.createObjectURL(stream);
             video.play();
             
-
-   
             console.log("stream", stream);
             var mediaRecorder = new MediaRecorder(stream);
+
 
             document.getElementById("start").onclick = function() {
                 chunks = [];
                 mediaRecorder.start();
+
                 console.log("recorder started");
             }
-        
-			
-    		document.getElementById("stop").onclick = function() {
+
+            document.getElementById("stop").onclick = function() {
                 mediaRecorder.stop();
                 console.log("recorder stopped");
-                replayer.style.display = "block";
+                vidCanvas.style.display = "block";
                 document.getElementById("stillCanvas").style.display = "none";
+                document.getElementById("save_img").style.display = "none";
+                document.getElementById("save_vid").style.display = "block";
             }
             
-            document.getElementById("save").onclick = function() {
+            document.getElementById("save_img").onclick = function() {
                 COUNTER = COUNTER + 1;
-                var uri = canvas.toDataURL();
-                console.log(uri);
-                localStorage.setItem(COUNTER, uri.toString());
-                
+             
+                var blob;
+                imgCanvas.toBlob(function(blob) {
+                    var newImg = document.createElement("img"),
+                    url = URL.createObjectURL(blob);
+
+                    newImg.onload = function() {
+                     // no longer need to read the blob so it's revoked
+                    URL.revokeObjectURL(url);
+                    };
+
+                    newImg.src = url;
+                    document.body.appendChild(newImg);
+                }, "image/png");
+                console.log(blob);
+                localStorage.setItem(COUNTER, blob.toString());
             }
-            
+            /*
+            document.getElementById("save_vid").onclick = function() {
+                COUNTER = COUNTER + 1;               
+                var blob = vidCanvas.toBlob();
+                console.log(blob);
+                localStorage.setItem(COUNTER, blob.toString());
+            }
+            */
             document.getElementById("view").onclick = function() {
-                console.log(localStorage.getItem(COUNTER));
-            };
-            
-            document.getElementById("video").load();
+                var count = localStorage.getItem("count");
+                
+                var byteCharacters = atob(localStorage.getItem("clip #" + count));
+                var byteNumbers = new Array(byteCharacters.length);
+                for (var i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                var blob = new Blob([byteArray], { 'type' : "video/ogg; codecs=opus" });
+                vidCanvas.src = window.URL.createObjectURL(blob);
+            }
 
             mediaRecorder.ondataavailable = function(e) {
                 console.log("data available");
                 chunks.push(e.data);
-            };
+            }
 
             mediaRecorder.onstop = function(e) {
                 console.log('onstop fired');
-                var blob = new Blob(chunks, { 'type' : 'video/ogv; codecs=opus' });
-                replayer.src = window.URL.createObjectURL(blob);
+                var blob = new Blob(chunks, { 'type' : 'video/ogg; codecs=opus' });
+                vidCanvas.src = window.URL.createObjectURL(blob);
+//                localStorage.setItem("clip #" + COUNTER, blob.toString())
+                
+                var reader = new window.FileReader();
+                reader.readAsDataURL(blob); 
+                reader.onloadend = function() {
+                    base64data = reader.result;                
+                    console.log(base64data );
+                    var count = parseInt(localStorage.getItem("count"), 10);
+                    localStorage.setItem("count", (count+1).toString());
+                    localStorage.setItem("clip #" + count.toString(), base64data.toString())
+                }
+                
             };
 
-			document.getElementById("video").onclick = function() {
-				if (typeof video.loop == 'boolean') {
-				 // loop supported
-			  video.loop = true;
-				} 
-			}
-			
-			
             mediaRecorder.onwarning = function(e) {
                 console.log('onwarning fired');
             };
@@ -85,28 +116,15 @@ window.addEventListener("DOMContentLoaded", function() {
             mediaRecorder.onerror = function(e) {
                 console.log('onerror fired');
             };
-        
-	};
-	
-	function saveImage() {
-    	var canvasData = canvas.toDataURL("image/png");
-    	var ajax = new XMLHttpRequest();
-    	ajax.open("POST",'WebcamLooma.php',false);
-    	ajax.onreadystatechange = function() {
-        	console.log(ajax.responseText);
-    	}
-    	ajax.setRequestHeader('Content-Type', 'application/upload');
-    	ajax.send("imgData="+canvasData);
+        };
 
-	}
-	document.getElementById("save").addEventListener("click", saveImage);
     // Put video listeners into place
     if(navigator.getUserMedia) { // Standard
         console.log("navigator.getUserMedia");
         navigator.getUserMedia(videoObj, onSuccess, errBack);
     } else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
         console.log("navigator.webkitGetUserMedia");
-        navigator.webkitGetUserMedia(videoObj, onSuccess, errBack);
+        navigator.webkitGetUserMedia(videoObj, onSuccess(), errBack);
     } else if(navigator.mozGetUserMedia) { // WebKit-prefixed
         console.log("navigator.mozGetUserMedia");
         navigator.mozGetUserMedia(videoObj, onSuccess, errBack);
@@ -116,65 +134,8 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("snap").addEventListener("click", function() {
         context.drawImage(video, 0, 0, 640, 480);
         document.getElementById("stillCanvas").style.display = "block";
+        document.getElementById("save_img").style.display = "block";
         document.getElementById("videoCanvas").style.display = "none";
+        document.getElementById("save_vid").style.display = "none";
     });
 }, false);
-
-/*
-var record = document.getElementById('start');
-var stop = document.getElementById('stop');
-var video = document.getElementById('videoCanvas');
-
-video.setAttribute('controls', '');
-
-var chunks = [];
-
-var constraints = {video: true};
-
-var onSuccess = function(stream) {
-  console.log("stream", stream);
-  var mediaRecorder = new MediaRecorder(stream);
-
-  record.onclick = function() {
-    chunks = [];
-    mediaRecorder.start();
-    console.log("recorder started");
-  }
-
-  stop.onclick = function() {
-    mediaRecorder.stop();
-    console.log("recorder stopped");
-    video.style.display = "block";
-    document.getElementById("stillCanvas").style.display = "none";
-  }
-  
- /* play.onclick = function (){
-    mediaRecorder.play();
-    console.log("recorder playing");
-    document.getElementById("videoCanvas").style.display = "block";
-  }
-
-  mediaRecorder.ondataavailable = function(e) {
-    console.log("data available");
-    chunks.push(e.data);
-  }
-
-  mediaRecorder.onstop = function(e) {
-    console.log('onstop fired');
-    var blob = new Blob(chunks, { 'type' : 'video/ogv; codecs=opus' });
-    video.src = window.URL.createObjectURL(blob);
-  };
-
-  
-  mediaRecorder.onwarning = function(e) {
-    console.log('onwarning fired');
-  };
-
-  mediaRecorder.onerror = function(e) {
-    console.log('onerror fired');
-  };
-};
-
-var onError = function(err) {
-  console.log('The following error occured: ' + err);
-} */
