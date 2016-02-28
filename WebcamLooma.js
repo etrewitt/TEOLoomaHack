@@ -7,19 +7,9 @@ var constraints = {video: true};
 var COUNTER = 0;
 
 
-function hasGetUserMedia() {
-  return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
-            navigator.mozGetUserMedia || navigator.msGetUserMedia);
-}
-
-if (hasGetUserMedia()) {
-  // Good to go!
-} else {
-  alert('getUserMedia() is not supported in your browser');
-}
-
 // Put event listeners into place
 window.addEventListener("DOMContentLoaded", function() {
+   
    
     // Grab elements, create settings, etc.
     var canvas = document.getElementById("stillCanvas"),
@@ -97,6 +87,19 @@ window.addEventListener("DOMContentLoaded", function() {
             };
         
 	};
+	
+	function saveImage() {
+    	var canvasData = canvas.toDataURL("image/png");
+    	var ajax = new XMLHttpRequest();
+    	ajax.open("POST",'WebcamLooma.php',false);
+    	ajax.onreadystatechange = function() {
+        	console.log(ajax.responseText);
+    	}
+    	ajax.setRequestHeader('Content-Type', 'application/upload');
+    	ajax.send("imgData="+canvasData);
+
+	}
+	document.getElementById("save").addEventListener("click", saveImage);
     // Put video listeners into place
     if(navigator.getUserMedia) { // Standard
         console.log("navigator.getUserMedia");
@@ -117,6 +120,7 @@ window.addEventListener("DOMContentLoaded", function() {
     });
 }, false);
 
+/*
 var record = document.getElementById('start');
 var stop = document.getElementById('stop');
 var video = document.getElementById('videoCanvas');
@@ -149,7 +153,7 @@ var onSuccess = function(stream) {
     console.log("recorder playing");
     document.getElementById("videoCanvas").style.display = "block";
   }
-*/
+
   mediaRecorder.ondataavailable = function(e) {
     console.log("data available");
     chunks.push(e.data);
@@ -173,4 +177,4 @@ var onSuccess = function(stream) {
 
 var onError = function(err) {
   console.log('The following error occured: ' + err);
-}
+} */
