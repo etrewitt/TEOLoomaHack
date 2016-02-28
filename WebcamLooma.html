@@ -4,45 +4,31 @@
 <head>
 	<title> Webcam Control </title>
 	<meta charset="UTF-8">
-
-	<script  src = "WebcamLooma.js" ></script>
+<!--
+	<script type="text/js" src = "https://raw.githubusercontent.com/etrewitt/TEOLoomaHack/testing-video-src/WebcamLooma.js" ></script>
+	<script type="text/js" src = "https://webrtcexperiment-webrtc.netdna-ssl.com/RecordRTC.js"></script>
+-->
+    <script src = "WebcamLooma.js" ></script>
     <link rel="stylesheet" type="text/css" href="WebLoomaStyle.css">
 </head> 
 
 <body>
+<p>  Looma's Webcam  </p> 
+<video id="video" width="640" height="480" autoplay></video> <br/>
 
-<video id="video" width="640" height="480" autoplay></video>
+<button id="snap" class ="button" >Snap Photo</button>
+<button id="start" class ="button" > Start recording</button>
+<button id="stop" class ="button" > Stop recording</button> <br/>
+<button id="save_img" class ="saveButton" > Save snap</button> 
+<button id="view"  > View </button> <br/> 
+<button id="save_vid" style="display: none;">Save</button> 
 
-<button id="snap">Snap Photo</button>
-<button id="start">Begin recording</button>
-<button id="stop">End recording</button>
-<button id="view">View</button>
 
-<!-- <form name = "php" enctype='multipart/form-data' method = "post" action ="WebcamLooma.php" > --> 
-
-<input type="button" value="Save" id="save" />
-<canvas id="stillCanvas" width="640" height="480" style="border:1px solid #c3c3c3;">
+<canvas id="stillCanvas" width="640" height="500" style="border:1px solid #c3c3c3;">
 Your browser does not support the HTML5 canvas tag.
 </canvas> 
-
-<video id="videoCanvas" width="640" height="480" autoplay style="border:1px solid #c3c3c3; display: none;">
-<source id= "ogg_src" src = "" type = "video/ogg">
-
+<video id="videoCanvas" width="640" height="500" autoplay style="border:1px solid #c3c3c3; display:none;">
 </video>
 
-<!--</form> -->
-<button onclick = "playVid()" type = "button" > Play </button>
-
-<!-- input type="file" accept="video/*;capture=camcorder">
-<input type="file" accept="audio/*;capture=microphone">   --> 
-
-<device type="media" onchange="update(this.data)"></device>
-
-<script>
-  function update(stream) {
-    document.querySelector('video').src = stream.url;
-  }
-</script>
-
 </body> 
-</html> 
+</html>
